@@ -19,11 +19,13 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState('')
   const [movieList, setMovieList] = useState([]);
   const [isLoading, setisLoading] = useState(false);
-  const fetchMovies = async () => {
+  const fetchMovies = async (query = '') => {
     setisLoading(true);
     setErrorMessage('');
     try {
-      const endpoint = `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
+      const endpoint = query ? 
+      `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`:
+      `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
       const response = await fetch(endpoint, API_OPTIONS)
       if(!response.ok) {
         throw new Error('Filme konnten nicht geladen werden');
@@ -46,9 +48,10 @@ const App = () => {
     }
   }
 
+  //* runs at the start and if dependency (searchterm) is changing
   useEffect(() => {
-    fetchMovies();
-  }, [])
+    fetchMovies(searchTerm);
+  }, [searchTerm])
 
   return (
     <main>
