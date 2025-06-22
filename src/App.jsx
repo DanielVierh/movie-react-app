@@ -42,7 +42,11 @@ const App = () => {
         return;
       }
       setMovieList(data.results || []);
+      console.log('Movies', data);
+      
     } catch (error) {
+      console.log(error);
+      
       setErrorMessage(`Error fetching Movies, please try again later`)
     } finally {
       setisLoading(false);
