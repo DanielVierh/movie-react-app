@@ -30,6 +30,7 @@ function MovieDetail() {
         if (!response.ok) throw new Error('Film konnte nicht geladen werden');
         const data = await response.json();
         setMovie(data);
+                console.log('Details', data);
       } catch (err) {
         console.log(err);
         
