@@ -30,7 +30,7 @@ const SeriesList = () => {
     setErrorMessage('');
     try {
       const endpoint = query ?
-        `${API_BASE_URL}/search/series?query=${encodeURIComponent(query)}` :
+        `${API_BASE_URL}/search/tv?query=${encodeURIComponent(query)}` :
         `${API_BASE_URL}/trending/tv/day?language=en-US`;
       const response = await fetch(endpoint, API_OPTIONS)
       if (!response.ok) {
