@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Search from './components/Search.jsx'
 import Spinner from './components/Spinner.jsx';
-import MovieCard from './components/MovieCard.jsx';
+import SeriesCard from './components/SeriesCard.jsx';
 import TypeSelect from './components/TypeSelect.jsx';
 import { useDebounce } from 'react-use';
 
@@ -16,39 +16,39 @@ const API_OPTIONS = {
   }
 }
 
-const MovieList = () => {
+const SeriesList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [errorMessage, setErrorMessage] = useState('')
-  const [movieList, setMovieList] = useState([]);
+  const [SeriesList, setSeriesList] = useState([]);
   const [isLoading, setisLoading] = useState(false);
   const [debouncedSearchTerm, setdebouncedSearchTerm] = useState('');
 
   useDebounce(()=>setdebouncedSearchTerm(searchTerm), 1000, [searchTerm])
 
-  const fetchMovies = async (query = '') => {
+  const fetchSeries = async (query = '') => {
     setisLoading(true);
     setErrorMessage('');
     try {
       const endpoint = query ?
-        `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}` :
-        `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
+        `${API_BASE_URL}/search/series?query=${encodeURIComponent(query)}` :
+        `${API_BASE_URL}/trending/tv/day?language=en-US`;
       const response = await fetch(endpoint, API_OPTIONS)
       if (!response.ok) {
         throw new Error('Filme konnten nicht geladen werden');
       }
       const data = await response.json();
       if (data.Response === 'false') {
-        setErrorMessage(data.Error || 'Failed to fetch movies');
-        setMovieList([]);
+        setErrorMessage(data.Error || 'Failed to fetch Series');
+        setSeriesList([]);
         return;
       }
-      setMovieList(data.results || []);
-      console.log('Movies', data);
+      setSeriesList(data.results || []);
+      console.log('Series', data);
       
     } catch (error) {
       console.log(error);
       
-      setErrorMessage(`Error fetching Movies, please try again later`)
+      setErrorMessage(`Error fetching Series, please try again later`)
     } finally {
       setisLoading(false);
     }
@@ -56,7 +56,7 @@ const MovieList = () => {
 
   //* runs at the start and if dependency (searchterm) is changing
   useEffect(() => {
-    fetchMovies(debouncedSearchTerm);
+    fetchSeries(debouncedSearchTerm);
   }, [debouncedSearchTerm])
 
   return (
@@ -66,12 +66,12 @@ const MovieList = () => {
           <TypeSelect />
           <header>
             <img src="./hero.png" alt="Hero Banner" />
-            <h1>Find the <span className="text-gradient">Movies</span> You'll Enjoy Without the Hussle</h1>
+            <h1>Find the <span className="text-gradient">Series</span> You'll Enjoy Without the Hussle</h1>
             <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           </header>
 
-          <section className="all-movies">
-            <h2 className='mt-[40px]'>Movies</h2>
+          <section className="all-Series">
+            <h2 className='mt-[40px]'>Series</h2>
 
             {isLoading ? (
               <Spinner />
@@ -79,8 +79,8 @@ const MovieList = () => {
               <p className='text-red-500'>{errorMessage}</p>
             ) : (
               <ul>
-                {movieList.map((movie) => (
-                  <MovieCard key={movie.id} movie={movie} />
+                {SeriesList.map((series) => (
+                  <SeriesCard key={series.id} series={series} />
                 ))}
               </ul>
             )}
@@ -91,4 +91,4 @@ const MovieList = () => {
   )
 }
 
-export default MovieList
+export default SeriesList
