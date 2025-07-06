@@ -109,7 +109,6 @@ function MovieDetail() {
         setImages(data.backdrops || []);
       } catch (err) {
         console.log(err);
-
         setImages([]);
       } finally {
         setImagesLoading(false);

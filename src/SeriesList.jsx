@@ -66,7 +66,7 @@ const SeriesList = () => {
           <TypeSelect />
           <header>
             <img src="./hero.png" alt="Hero Banner" />
-            <h1>Find the <span className="text-gradient">Series</span> You'll Enjoy Without the Hussle</h1>
+            <h1>Find <span className="text-gradient">Series</span></h1>
             <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           </header>
 
