@@ -31,7 +31,7 @@ const SeriesList = () => {
     try {
       const endpoint = query ?
         `${API_BASE_URL}/search/tv?query=${encodeURIComponent(query)}` :
-        `${API_BASE_URL}/trending/tv/day?language=en-US`;
+        `${API_BASE_URL}/trending/tv/week?language=en-US`;
       const response = await fetch(endpoint, API_OPTIONS)
       if (!response.ok) {
         throw new Error('Filme konnten nicht geladen werden');
