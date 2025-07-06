@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Review from "./components/Review";
 import ImageSwiper from "./components/ImageSwiper";
 import StickyHeader from "./components/StickyHeader";
+import Recommondations from "./components/Recommondations";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 const SCRT = import.meta.env.VITE_TMDB;
@@ -24,6 +25,8 @@ function SeriesDetail() {
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [images, setImages] = useState([]);
   const [imagesLoading, setImagesLoading] = useState(true);
+  const [recommondations, setRecommondations] = useState([]);
+  const [recommondationsLoading, setRecommondationsLoading] = useState(true);
 
   useEffect(() => {
     const fetchSeries = async () => {
@@ -91,6 +94,28 @@ function SeriesDetail() {
     fetchImages();
   }, [id]);
 
+  useEffect(() => {
+    const fetchSimilar = async () => {
+      setRecommondationsLoading(true);
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/tv/${id}/recommendations?language=en-US&page=1`,
+          API_OPTIONS
+        );
+        if (!response.ok)
+          throw new Error("Ähnliche Filme konnten nicht geladen werden");
+        const data = await response.json();
+        setRecommondations(data.results || []);
+      } catch (err) {
+        console.log(err);
+        setRecommondations([]);
+      } finally {
+        setRecommondationsLoading(false);
+      }
+    };
+    fetchSimilar();
+  }, [id]);
+
   if (isLoading) return <p>Lade...</p>;
   if (error)
     return (
@@ -103,7 +128,7 @@ function SeriesDetail() {
 
   return (
     <div className="p-8 max-w-xl mx-auto text-white">
-      <StickyHeader title={series.name}/>
+      <StickyHeader title={series.name} />
       <img
         src={
           series.poster_path
@@ -151,6 +176,7 @@ function SeriesDetail() {
       )}
       <br />
       <div className="mb-6">
+        <h3 className="text-xl font-semibold mb-2">Bilder</h3>
         {imagesLoading ? (
           <p>Lade Bilder...</p>
         ) : (
@@ -168,6 +194,27 @@ function SeriesDetail() {
           <ul className="space-y-4">
             {reviews.map((review) => (
               <Review key={review.id} review={review} />
+            ))}
+          </ul>
+        )}
+      </div>
+      <div className="mt-8">
+        <h3 className="text-xl font-semibold mb-2">Empfehlungen</h3>
+        {recommondationsLoading ? (
+          <p>Lade Empfehlungen...</p>
+        ) : recommondations.length === 0 ? (
+          <p>Keine Empfehlungen gefunden.</p>
+        ) : (
+          <ul className="space-y-4">
+            {recommondations.map((sim) => (
+              <Recommondations
+                key={sim.id}
+                title={sim.name}
+                poster_path={sim.poster_path}
+                id={sim.id}
+                release_date={sim.first_air_date}
+                vote_average={sim.vote_average}
+              />
             ))}
           </ul>
         )}

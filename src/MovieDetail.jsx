@@ -1,9 +1,9 @@
-// ...existing imports...
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Review from "./components/Review";
 import ImageSwiper from "./components/ImageSwiper";
 import StickyHeader from "./components/StickyHeader";
+import Recommondations from "./components/Recommondations";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 const SCRT = import.meta.env.VITE_TMDB;
@@ -130,7 +130,7 @@ function MovieDetail() {
 
   return (
     <div className="p-8 max-w-xl mx-auto text-white">
-      <StickyHeader title={movie.title}/>
+      <StickyHeader title={movie.title} />
       <img
         src={
           movie.poster_path
@@ -208,34 +208,14 @@ function MovieDetail() {
         ) : (
           <ul className="space-y-4">
             {similar.map((sim) => (
-              <li key={sim.id} className="flex items-center space-x-4">
-                <img
-                  src={
-                    sim.poster_path
-                      ? `https://image.tmdb.org/t/p/w92/${sim.poster_path}`
-                      : "/no-movie.png"
-                  }
-                  alt={sim.title}
-                  className="w-16 h-24 object-cover rounded"
-                />
-                <div>
-                  <Link
-                    to={`/movie/${sim.id}`}
-                    className="text-blue-400 underline"
-                  >
-                    {sim.title}
-                  </Link>
-                  <div className="text-sm text-gray-400">
-                    {sim.release_date ? sim.release_date.split("-")[0] : ""}
-                  </div>
-                  <div className="text-sm">
-                    Bewertung:{" "}
-                    {sim.vote_average === 0
-                      ? "-"
-                      : sim.vote_average?.toFixed(1)}
-                  </div>
-                </div>
-              </li>
+              <Recommondations
+                key={sim.id}
+                title={sim.title}
+                poster_path={sim.poster_path}
+                id={sim.id}
+                release_date={sim.release_date}
+                vote_average={sim.vote_average}
+              />
             ))}
           </ul>
         )}
