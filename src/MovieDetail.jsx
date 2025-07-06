@@ -21,6 +21,8 @@ function MovieDetail() {
   const [error, setError] = useState("");
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [similar, setSimilar] = useState([]);
+  const [similarLoading, setSimilarLoading] = useState(true); 
 
   useEffect(() => {
     const fetchMovie = async () => {
@@ -66,6 +68,28 @@ function MovieDetail() {
       }
     };
     fetchReviews();
+  }, [id]);
+
+  useEffect(() => {
+    const fetchSimilar = async () => {
+      setSimilarLoading(true);
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/movie/${id}/recommendations?language=en-US&page=1`,
+          API_OPTIONS
+        );
+        if (!response.ok)
+          throw new Error("Ähnliche Filme konnten nicht geladen werden");
+        const data = await response.json();
+        setSimilar(data.results || []);
+      } catch (err) {
+        console.log(err);
+        setSimilar([]);
+      } finally {
+        setSimilarLoading(false);
+      }
+    };
+    fetchSimilar();
   }, [id]);
 
   if (isLoading) return <p>Lade...</p>;
@@ -138,6 +162,41 @@ function MovieDetail() {
           <ul className="space-y-4">
             {reviews.map((review) => (
               <Review key={review.id} review={review}/>
+            ))}
+          </ul>
+        )}
+      </div>
+      <div className="mt-8">
+        <h3 className="text-xl font-semibold mb-2">Ähnliche Filme</h3>
+        {similarLoading ? (
+          <p>Lade ähnliche Filme...</p>
+        ) : similar.length === 0 ? (
+          <p>Keine ähnlichen Filme gefunden.</p>
+        ) : (
+          <ul className="space-y-4">
+            {similar.map((sim) => (
+              <li key={sim.id} className="flex items-center space-x-4">
+                <img
+                  src={
+                    sim.poster_path
+                      ? `https://image.tmdb.org/t/p/w92/${sim.poster_path}`
+                      : "/no-movie.png"
+                  }
+                  alt={sim.title}
+                  className="w-16 h-24 object-cover rounded"
+                />
+                <div>
+                  <Link to={`/movie/${sim.id}`} className="text-blue-400 underline">
+                    {sim.title}
+                  </Link>
+                  <div className="text-sm text-gray-400">
+                    {sim.release_date ? sim.release_date.split("-")[0] : ""}
+                  </div>
+                  <div className="text-sm">
+                    Bewertung: {sim.vote_average === 0 ? "-" : sim.vote_average?.toFixed(1)}
+                  </div>
+                </div>
+              </li>
             ))}
           </ul>
         )}
