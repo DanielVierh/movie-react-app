@@ -2,6 +2,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Review from "./components/Review";
+import ImageSwiper from "./components/ImageSwiper";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 const SCRT = import.meta.env.VITE_TMDB;
@@ -22,7 +23,9 @@ function MovieDetail() {
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [similar, setSimilar] = useState([]);
-  const [similarLoading, setSimilarLoading] = useState(true); 
+  const [similarLoading, setSimilarLoading] = useState(true);
+  const [images, setImages] = useState([]);
+  const [imagesLoading, setImagesLoading] = useState(true);
 
   useEffect(() => {
     const fetchMovie = async () => {
@@ -92,6 +95,29 @@ function MovieDetail() {
     fetchSimilar();
   }, [id]);
 
+  useEffect(() => {
+    const fetchImages = async () => {
+      setImagesLoading(true);
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/movie/${id}/images`,
+          API_OPTIONS
+        );
+        if (!response.ok)
+          throw new Error("Bilder konnten nicht geladen werden");
+        const data = await response.json();
+        setImages(data.backdrops || []);
+      } catch (err) {
+        console.log(err);
+
+        setImages([]);
+      } finally {
+        setImagesLoading(false);
+      }
+    };
+    fetchImages();
+  }, [id]);
+
   if (isLoading) return <p>Lade...</p>;
   if (error)
     return (
@@ -152,6 +178,15 @@ function MovieDetail() {
         Zurück zur Liste
       </Link>
 
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold mb-2">Bilder</h3>
+        {imagesLoading ? (
+          <p>Lade Bilder...</p>
+        ) : (
+          <ImageSwiper images={images} />
+        )}
+      </div>
+
       <div className="mt-8">
         <h3 className="text-xl font-semibold mb-2">Reviews</h3>
         {reviewsLoading ? (
@@ -161,17 +196,17 @@ function MovieDetail() {
         ) : (
           <ul className="space-y-4">
             {reviews.map((review) => (
-              <Review key={review.id} review={review}/>
+              <Review key={review.id} review={review} />
             ))}
           </ul>
         )}
       </div>
       <div className="mt-8">
-        <h3 className="text-xl font-semibold mb-2">Ähnliche Filme</h3>
+        <h3 className="text-xl font-semibold mb-2">Empfehlungen</h3>
         {similarLoading ? (
-          <p>Lade ähnliche Filme...</p>
+          <p>Lade Empfehlungen...</p>
         ) : similar.length === 0 ? (
-          <p>Keine ähnlichen Filme gefunden.</p>
+          <p>Keine Empfehlungen gefunden.</p>
         ) : (
           <ul className="space-y-4">
             {similar.map((sim) => (
@@ -186,14 +221,20 @@ function MovieDetail() {
                   className="w-16 h-24 object-cover rounded"
                 />
                 <div>
-                  <Link to={`/movie/${sim.id}`} className="text-blue-400 underline">
+                  <Link
+                    to={`/movie/${sim.id}`}
+                    className="text-blue-400 underline"
+                  >
                     {sim.title}
                   </Link>
                   <div className="text-sm text-gray-400">
                     {sim.release_date ? sim.release_date.split("-")[0] : ""}
                   </div>
                   <div className="text-sm">
-                    Bewertung: {sim.vote_average === 0 ? "-" : sim.vote_average?.toFixed(1)}
+                    Bewertung:{" "}
+                    {sim.vote_average === 0
+                      ? "-"
+                      : sim.vote_average?.toFixed(1)}
                   </div>
                 </div>
               </li>
