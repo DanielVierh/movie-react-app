@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 
-const Recommondations = ({poster_path, title, id, release_date, vote_average}) => {
+const Recommondations = ({poster_path, title, id, release_date, vote_average, type}) => {
   return (
     <li key={id} className="flex items-center space-x-4">
       <img
@@ -15,7 +15,7 @@ const Recommondations = ({poster_path, title, id, release_date, vote_average}) =
         className="w-16 h-24 object-cover rounded"
       />
       <div>
-        <Link to={`/movie/${id}`} className="text-blue-400 underline">
+        <Link to={`/${type}/${id}`} className="text-blue-400 underline">
           {title}
         </Link>
         <div className="text-sm text-gray-400">

@@ -214,6 +214,7 @@ function SeriesDetail() {
                 id={sim.id}
                 release_date={sim.first_air_date}
                 vote_average={sim.vote_average}
+                type="series"
               />
             ))}
           </ul>

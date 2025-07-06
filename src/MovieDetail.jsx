@@ -215,6 +215,7 @@ function MovieDetail() {
                 id={sim.id}
                 release_date={sim.release_date}
                 vote_average={sim.vote_average}
+                type="movie"
               />
             ))}
           </ul>
