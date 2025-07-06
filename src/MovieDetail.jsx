@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Review from "./components/Review";
 import ImageSwiper from "./components/ImageSwiper";
+import StickyHeader from "./components/StickyHeader";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 const SCRT = import.meta.env.VITE_TMDB;
@@ -129,6 +130,7 @@ function MovieDetail() {
 
   return (
     <div className="p-8 max-w-xl mx-auto text-white">
+      <StickyHeader title={movie.title}/>
       <img
         src={
           movie.poster_path
@@ -136,7 +138,7 @@ function MovieDetail() {
             : "/no-movie.png"
         }
         alt={movie.title}
-        className="mb-4 rounded-lg"
+        className="mb-4 rounded-lg mt-20"
       />
       <h2 className="text-2xl font-bold mb-2">
         {movie.title} ({movie.release_date?.split("-")[0]})
@@ -173,9 +175,6 @@ function MovieDetail() {
           ))}
         </div>
       )}
-      <Link to="/" className="text-blue-400 underline mt-4 block">
-        Zurück zur Liste
-      </Link>
 
       <div className="mb-6">
         <h3 className="text-xl font-semibold mb-2">Bilder</h3>

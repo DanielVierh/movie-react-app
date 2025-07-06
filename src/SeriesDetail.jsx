@@ -2,6 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Review from "./components/Review";
 import ImageSwiper from "./components/ImageSwiper";
+import StickyHeader from "./components/StickyHeader";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 const SCRT = import.meta.env.VITE_TMDB;
@@ -100,14 +101,9 @@ function SeriesDetail() {
     );
   if (!series) return null;
 
-  const handleGoBack = () => {
-    window.history.length > 1
-      ? window.history.back()
-      : window.location.assign("/");
-  };
-
   return (
     <div className="p-8 max-w-xl mx-auto text-white">
+      <StickyHeader title={series.name}/>
       <img
         src={
           series.poster_path
@@ -115,7 +111,7 @@ function SeriesDetail() {
             : "/no-movie.png"
         }
         alt={series.name}
-        className="mb-4 rounded-lg"
+        className="mb-4 rounded-lg mt-20"
       />
       <h2 className="text-2xl font-bold mb-2">
         {series.name} ({series.first_air_date?.split("-")[0]})
@@ -153,12 +149,6 @@ function SeriesDetail() {
           ))}
         </div>
       )}
-      <button
-        onClick={handleGoBack}
-        className="text-blue-400 underline mt-4 block"
-      >
-        Zurück
-      </button>
       <br />
       <div className="mb-6">
         {imagesLoading ? (

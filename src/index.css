@@ -61,26 +61,6 @@
     @apply px-5 py-12 xs:p-10 max-w-7xl mx-auto flex flex-col relative z-10;
   }
 
-  .trending {
-    @apply mt-20;
-
-    & ul {
-      @apply flex flex-row overflow-y-auto gap-5 -mt-10 w-full hide-scrollbar;
-    }
-
-    & ul li {
-      @apply min-w-[230px] flex flex-row items-center;
-    }
-
-    & ul li p {
-      @apply fancy-text mt-[22px] text-nowrap;
-    }
-
-    & ul li img {
-      @apply w-[127px] h-[163px] rounded-lg object-cover -ml-3.5;
-    }
-  }
-
   .search {
     @apply w-full bg-light-100/5 px-4 py-3 rounded-lg mt-10 max-w-3xl mx-auto;
 
@@ -173,5 +153,13 @@
 }
 
 .type-cta {
-  @apply bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-7 cursor-pointer
+  @apply bg-dark-100 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-7 cursor-pointer;
+  box-shadow: 0 0 15px white;
+}
+
+.sticky-header {
+  @apply fixed left-0 w-full backdrop-blur-[5px];
+  background: rgba(0,0,0,0.8);
+  top: -40px;
+  z-index: 999;
 }
