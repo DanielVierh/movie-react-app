@@ -22,42 +22,62 @@ const MovieList = () => {
   const [movieList, setMovieList] = useState([]);
   const [isLoading, setisLoading] = useState(false);
   const [debouncedSearchTerm, setdebouncedSearchTerm] = useState('');
+  const [moviePage, setMoviePage] = useState(1);
 
-  useDebounce(()=>setdebouncedSearchTerm(searchTerm), 1000, [searchTerm])
+  useDebounce(() => setdebouncedSearchTerm(searchTerm), 1000, [searchTerm])
 
-  const fetchMovies = async (query = '') => {
-    setisLoading(true);
-    setErrorMessage('');
-    try {
-      const endpoint = query ?
-        `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}` :
-        `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
-      const response = await fetch(endpoint, API_OPTIONS)
-      if (!response.ok) {
-        throw new Error('Filme konnten nicht geladen werden');
-      }
-      const data = await response.json();
-      if (data.Response === 'false') {
-        setErrorMessage(data.Error || 'Failed to fetch movies');
-        setMovieList([]);
-        return;
-      }
-      setMovieList(data.results || []);
-      console.log('Movies', data);
-      
-    } catch (error) {
-      console.log(error);
-      
-      setErrorMessage(`Error fetching Movies, please try again later`)
-    } finally {
-      setisLoading(false);
+const fetchMovies = async (query = '', page = 1) => {
+  setisLoading(true);
+  setErrorMessage('');
+  try {
+    const endpoint = query
+      ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}&page=${page}`
+      : `${API_BASE_URL}/discover/movie?page=${page}&sort_by=popularity.desc`;
+    const response = await fetch(endpoint, API_OPTIONS)
+    if (!response.ok) {
+      throw new Error('Filme konnten nicht geladen werden');
     }
+    const data = await response.json();
+    if (data.Response === 'false') {
+      setErrorMessage(data.Error || 'Failed to fetch movies');
+      setMovieList([]);
+      return;
+    }
+    if (page > 1) {
+      setMovieList(prev => {
+        const existingIds = new Set(prev.map(m => m.id));
+        const newMovies = (data.results || []).filter(m => !existingIds.has(m.id));
+        return [...prev, ...newMovies];
+      });
+    } else {
+      setMovieList(data.results || []);
+    }
+  } catch (error) {
+    console.log(error);
+    setErrorMessage(`Error fetching Movies, please try again later`)
+  } finally {
+    setisLoading(false);
   }
+}
 
-  //* runs at the start and if dependency (searchterm) is changing
+  // Bei Suchbegriff zurück auf Seite 1 und neue Suche
   useEffect(() => {
-    fetchMovies(debouncedSearchTerm);
+    setMoviePage(1);
+    fetchMovies(debouncedSearchTerm, 1);
+    // eslint-disable-next-line
   }, [debouncedSearchTerm])
+
+  // Bei Seitenwechsel weitere Filme laden (auch bei Suche)
+  useEffect(() => {
+    if (moviePage > 1) {
+      fetchMovies(debouncedSearchTerm, moviePage);
+    }
+    // eslint-disable-next-line
+  }, [moviePage])
+
+  const load_more = () => {
+    setMoviePage(prev => prev + 1);
+  }
 
   return (
     <main>
@@ -85,6 +105,7 @@ const MovieList = () => {
               </ul>
             )}
           </section>
+          <div className='load-button' onClick={load_more}>Mehr anzeigen</div>
         </div>
       </div>
     </main>
