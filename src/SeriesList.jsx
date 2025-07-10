@@ -63,7 +63,7 @@ const SeriesList = () => {
     <main>
       <div className="pattern">
         <div className="wrapper">
-          <TypeSelect />
+          <TypeSelect type="series"/>
           <header>
             <img src="./hero.png" alt="Hero Banner" />
             <h1>Find <span className="text-gradient">Series</span></h1>

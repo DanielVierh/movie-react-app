@@ -74,7 +74,7 @@ const fetchMovies = async (query = '', page = 1) => {
     <main>
       <div className="pattern">
         <div className="wrapper">
-          <TypeSelect />
+          <TypeSelect type="movies"/>
           <header>
             <img src="./hero.png" alt="Hero Banner" />
             <h1>Find <span className="text-gradient">Movies</span></h1>
