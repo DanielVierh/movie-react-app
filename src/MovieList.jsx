@@ -43,15 +43,7 @@ const fetchMovies = async (query = '', page = 1) => {
       setMovieList([]);
       return;
     }
-    if (page > 1) {
-      setMovieList(prev => {
-        const existingIds = new Set(prev.map(m => m.id));
-        const newMovies = (data.results || []).filter(m => !existingIds.has(m.id));
-        return [...prev, ...newMovies];
-      });
-    } else {
-      setMovieList(data.results || []);
-    }
+    setMovieList(data.results || []);
   } catch (error) {
     console.log(error);
     setErrorMessage(`Error fetching Movies, please try again later`)
@@ -64,7 +56,6 @@ const fetchMovies = async (query = '', page = 1) => {
   useEffect(() => {
     setMoviePage(1);
     fetchMovies(debouncedSearchTerm, 1);
-    // eslint-disable-next-line
   }, [debouncedSearchTerm])
 
   // Bei Seitenwechsel weitere Filme laden (auch bei Suche)
