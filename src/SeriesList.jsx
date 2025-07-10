@@ -19,19 +19,21 @@ const API_OPTIONS = {
 const SeriesList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [errorMessage, setErrorMessage] = useState('')
-  const [SeriesList, setSeriesList] = useState([]);
+  const [seriesList, setSeriesList] = useState([]);
   const [isLoading, setisLoading] = useState(false);
   const [debouncedSearchTerm, setdebouncedSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
-  useDebounce(()=>setdebouncedSearchTerm(searchTerm), 1000, [searchTerm])
+  useDebounce(() => setdebouncedSearchTerm(searchTerm), 1000, [searchTerm])
 
-  const fetchSeries = async (query = '') => {
+  const fetchSeries = async (query = '', pageNum = 1, append = false) => {
     setisLoading(true);
     setErrorMessage('');
     try {
-      const endpoint = query ?
-        `${API_BASE_URL}/search/tv?query=${encodeURIComponent(query)}` :
-        `${API_BASE_URL}/trending/tv/week?language=en-US`;
+      const endpoint = query
+        ? `${API_BASE_URL}/search/tv?query=${encodeURIComponent(query)}&page=${pageNum}`
+        : `${API_BASE_URL}/trending/tv/week?language=en-US&page=${pageNum}`;
       const response = await fetch(endpoint, API_OPTIONS)
       if (!response.ok) {
         throw new Error('Filme konnten nicht geladen werden');
@@ -40,24 +42,36 @@ const SeriesList = () => {
       if (data.Response === 'false') {
         setErrorMessage(data.Error || 'Failed to fetch Series');
         setSeriesList([]);
+        setHasMore(false);
         return;
       }
-      setSeriesList(data.results || []);
-      console.log('Series', data);
-      
+      if (append) {
+        setSeriesList(prev => [...prev, ...(data.results || [])]);
+      } else {
+        setSeriesList(data.results || []);
+      }
+      setHasMore(data.page < data.total_pages);
     } catch (error) {
       console.log(error);
-      
       setErrorMessage(`Error fetching Series, please try again later`)
+      setHasMore(false);
     } finally {
       setisLoading(false);
     }
   }
 
-  //* runs at the start and if dependency (searchterm) is changing
+  // Bei Suchbegriff oder Start zurücksetzen
   useEffect(() => {
-    fetchSeries(debouncedSearchTerm);
+    setPage(1);
+    fetchSeries(debouncedSearchTerm, 1, false);
   }, [debouncedSearchTerm])
+
+  // Lade mehr Funktion
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchSeries(debouncedSearchTerm, nextPage, true);
+  };
 
   return (
     <main>
@@ -73,16 +87,27 @@ const SeriesList = () => {
           <section className="all-Series">
             <h2 className='mt-[40px]'>Series</h2>
 
-            {isLoading ? (
+            {isLoading && page === 1 ? (
               <Spinner />
             ) : errorMessage ? (
               <p className='text-red-500'>{errorMessage}</p>
             ) : (
-              <ul>
-                {SeriesList.map((series) => (
-                  <SeriesCard key={series.id} series={series} />
-                ))}
-              </ul>
+              <>
+                <ul>
+                  {seriesList.map((series) => (
+                    <SeriesCard key={series.id} series={series} />
+                  ))}
+                </ul>
+                {hasMore && (
+                  <button
+                    className="load-button"
+                    onClick={handleLoadMore}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Lädt...' : 'Lade mehr'}
+                  </button>
+                )}
+              </>
             )}
           </section>
         </div>
