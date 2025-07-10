@@ -32,7 +32,7 @@ const fetchMovies = async (query = '', page = 1) => {
   try {
     const endpoint = query
       ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}&page=${page}`
-      : `${API_BASE_URL}/discover/movie?page=${page}&sort_by=popularity.desc`;
+      : `${API_BASE_URL}/movie/now_playing?page=${page}&sort_by=popularity.desc`;
     const response = await fetch(endpoint, API_OPTIONS)
     if (!response.ok) {
       throw new Error('Filme konnten nicht geladen werden');
