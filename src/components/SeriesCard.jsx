@@ -5,7 +5,11 @@ const SeriesCard = ({ series }) => {
     const { id, name, vote_average, poster_path, first_air_date, original_language } = series;
     console.log('series', series);
     return (
-        <Link to={`/series/${id}`}>
+        <Link to={`/series/${id}`}
+        onClick={(e) => {
+        e.preventDefault();
+        window.open(`/series/${id}`, "_blank", "noopener,noreferrer");
+      }}>
             <div className='series-card cursor-pointer hover:shadow-lg transition'>
                 <img src={poster_path ? `https://image.tmdb.org/t/p/w500/${poster_path}` : '/no-movie.png'} alt={name} />
                 <div className="mt-4">
