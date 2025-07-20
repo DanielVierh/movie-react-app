@@ -1,9 +1,9 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Review from "./components/Review";
-import ImageSwiper from "./components/ImageSwiper";
 import StickyHeader from "./components/StickyHeader";
 import Recommondations from "./components/Recommondations";
+import SwiperSlides from "./components/SwiperSlides";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 const SCRT = import.meta.env.VITE_TMDB;
@@ -181,7 +181,7 @@ function MovieDetail() {
         {imagesLoading ? (
           <p>Lade Bilder...</p>
         ) : (
-          <ImageSwiper images={images} />
+          <SwiperSlides images={images}/>
         )}
       </div>
 
