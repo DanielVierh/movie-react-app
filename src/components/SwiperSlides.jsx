@@ -9,14 +9,13 @@ import { Navigation } from 'swiper/modules';
 export default function SwiperSlides({ headline, images }) {
   return (
     <>
-      <h2>{headline}</h2>
+      <h3 className="text-xl font-semibold mb-2">{headline}</h3>
       <Swiper
         navigation={true}
         modules={[Navigation]}
         className="mySwiper text-white"
       >
         {images.map((image) => {
-          console.log('img', image.file_path);
           return (
             <SwiperSlide key={image.file_path}>
               <img

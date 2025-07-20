@@ -4,6 +4,7 @@ import Review from "./components/Review";
 import StickyHeader from "./components/StickyHeader";
 import Recommondations from "./components/Recommondations";
 import SwiperSlides from "./components/SwiperSlides";
+import CreditsCard from "./components/CreditsCards";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 const SCRT = import.meta.env.VITE_TMDB;
@@ -27,6 +28,8 @@ function SeriesDetail() {
   const [imagesLoading, setImagesLoading] = useState(true);
   const [recommondations, setRecommondations] = useState([]);
   const [recommondationsLoading, setRecommondationsLoading] = useState(true);
+  const [credits, setCredits] = useState([]);
+  const [creditsLoading, setCreditsLoading] = useState(true);
 
   useEffect(() => {
     const fetchSeries = async () => {
@@ -47,6 +50,31 @@ function SeriesDetail() {
       }
     };
     fetchSeries();
+  }, [id]);
+
+  //* Credits
+  useEffect(() => {
+    const fetchCredits = async () => {
+      setCreditsLoading(true);
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/tv/${id}/credits`,
+          API_OPTIONS
+        );
+        if (!response.ok)
+          throw new Error("Credits konnten nicht geladen werden");
+        const data = await response.json();
+        console.log("Raw_Data", data.cast);
+
+        setCredits(data.cast || []);
+      } catch (err) {
+        console.log(err);
+        setCredits([]);
+      } finally {
+        setCreditsLoading(false);
+      }
+    };
+    fetchCredits();
   }, [id]);
 
   useEffect(() => {
@@ -176,14 +204,20 @@ function SeriesDetail() {
       )}
       <br />
       <div className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">Bilder</h3>
         {imagesLoading ? (
           <p>Lade Bilder...</p>
         ) : (
-          <SwiperSlides headline="Bilder" images={images}/>
+          <SwiperSlides headline="Bilder" images={images} />
         )}
       </div>
-
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold mb-2">Schauspieler</h3>
+        {creditsLoading ? (
+          <p>Lade Schauspieler...</p>
+        ) : (
+          <CreditsCard data={credits} />
+        )}
+      </div>
       <div className="mt-8">
         <h3 className="text-xl font-semibold mb-2">Reviews</h3>
         {reviewsLoading ? (
