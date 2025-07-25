@@ -158,7 +158,7 @@ function MovieDetail() {
 
   return (
     <div className="p-8 max-w-xl mx-auto text-white">
-      <StickyHeader title={movie.title} />
+      <StickyHeader title={movie.title} link_to_main={'/'} />
       <img
         src={
           movie.poster_path

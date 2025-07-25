@@ -156,7 +156,7 @@ function SeriesDetail() {
 
   return (
     <div className="p-8 max-w-xl mx-auto text-white">
-      <StickyHeader title={series.name} />
+      <StickyHeader title={series.name} link_to_main={'/Series'} />
       <img
         src={
           series.poster_path

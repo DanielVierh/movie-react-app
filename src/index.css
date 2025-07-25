@@ -162,7 +162,7 @@
 }
 
 .sticky-header {
-  @apply fixed left-0 w-full backdrop-blur-[5px];
+  @apply fixed left-0 w-full backdrop-blur-[5px] flex flex-col;
   background: rgba(0,0,0,0.8);
   top: -40px;
   z-index: 999;
