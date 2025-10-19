@@ -59,6 +59,7 @@
 
   .wrapper {
     @apply px-5 py-12 xs:p-10 max-w-7xl mx-auto flex flex-col relative z-10;
+    padding-bottom: 150px;
   }
 
   .search {
@@ -163,20 +164,55 @@
 
 .sticky-header {
   @apply fixed left-0 w-full backdrop-blur-[5px] flex flex-col;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0, 0, 0, 0.8);
   top: -40px;
   z-index: 999;
 }
 
 .load-button {
   @apply text-white p-3 text-center w-50 flex justify-center align-middle mx-auto mt-10 cursor-pointer;
-  background: linear-gradient(to bottom, #315dd7, #2e2c72); /* blue-950 to indigo-900 */
+  background: linear-gradient(
+    to bottom,
+    #315dd7,
+    #2e2c72
+  ); /* blue-950 to indigo-900 */
   box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
   border-radius: 8px;
-  transition: all .4s ease-in-out;
+  transition: all 0.4s ease-in-out;
   border: 1px solid rgba(255, 255, 255, 0.45);
 
   &:hover {
     box-shadow: 0 0 30px rgba(255, 255, 255, 1);
   }
+}
+
+nav {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 400px;
+  height: 60px;
+  background: #030014ab;
+  border-radius: 35px;
+  padding: 20px;
+  z-index: 999;
+  backdrop-filter: blur(3px);
+  box-shadow: 0 0 40px rgba(255, 255, 255, 0.561);
+}
+
+nav ul {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  height: 100%;
+}
+
+nav ul li a {
+  background-color: #030014;
+  color: white;
+  border-radius: 8px;
+  padding: 8px 10px;
 }

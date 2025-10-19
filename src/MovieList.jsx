@@ -1,62 +1,64 @@
-import React, { useEffect, useState } from 'react'
-import Search from './components/Search.jsx'
-import Spinner from './components/Spinner.jsx';
-import MovieCard from './components/MovieCard.jsx';
-import TypeSelect from './components/TypeSelect.jsx';
-import { useDebounce } from 'react-use';
+import React, { useEffect, useState } from "react";
+import Search from "./components/Search.jsx";
+import Spinner from "./components/Spinner.jsx";
+import MovieCard from "./components/MovieCard.jsx";
+import TypeSelect from "./components/TypeSelect.jsx";
+import { useDebounce } from "react-use";
 
-const API_BASE_URL = 'https://api.themoviedb.org/3';
+const API_BASE_URL = "https://api.themoviedb.org/3";
 const SCRT = import.meta.env.VITE_TMDB;
 
 const API_OPTIONS = {
-  method: 'GET',
+  method: "GET",
   headers: {
-    accept: 'application/json',
-    Authorization: `Bearer ${SCRT}`
-  }
-}
+    accept: "application/json",
+    Authorization: `Bearer ${SCRT}`,
+  },
+};
 
 const MovieList = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [errorMessage, setErrorMessage] = useState('')
+  const [searchTerm, setSearchTerm] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [movieList, setMovieList] = useState([]);
   const [isLoading, setisLoading] = useState(false);
-  const [debouncedSearchTerm, setdebouncedSearchTerm] = useState('');
+  const [debouncedSearchTerm, setdebouncedSearchTerm] = useState("");
   const [moviePage, setMoviePage] = useState(1);
 
-  useDebounce(() => setdebouncedSearchTerm(searchTerm), 1000, [searchTerm])
+  useDebounce(() => setdebouncedSearchTerm(searchTerm), 1000, [searchTerm]);
 
-const fetchMovies = async (query = '', page = 1) => {
-  setisLoading(true);
-  setErrorMessage('');
-  try {
-    const endpoint = query
-      ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}&page=${page}`
-      : `${API_BASE_URL}/movie/now_playing?page=${page}&sort_by=popularity.desc`;
-    const response = await fetch(endpoint, API_OPTIONS)
-    if (!response.ok) {
-      throw new Error('Filme konnten nicht geladen werden');
+  const fetchMovies = async (query = "", page = 1) => {
+    setisLoading(true);
+    setErrorMessage("");
+    try {
+      const endpoint = query
+        ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(
+            query
+          )}&page=${page}`
+        : `${API_BASE_URL}/movie/now_playing?page=${page}&sort_by=popularity.desc`;
+      const response = await fetch(endpoint, API_OPTIONS);
+      if (!response.ok) {
+        throw new Error("Filme konnten nicht geladen werden");
+      }
+      const data = await response.json();
+      if (data.Response === "false") {
+        setErrorMessage(data.Error || "Failed to fetch movies");
+        setMovieList([]);
+        return;
+      }
+      setMovieList(data.results || []);
+    } catch (error) {
+      console.log(error);
+      setErrorMessage(`Error fetching Movies, please try again later`);
+    } finally {
+      setisLoading(false);
     }
-    const data = await response.json();
-    if (data.Response === 'false') {
-      setErrorMessage(data.Error || 'Failed to fetch movies');
-      setMovieList([]);
-      return;
-    }
-    setMovieList(data.results || []);
-  } catch (error) {
-    console.log(error);
-    setErrorMessage(`Error fetching Movies, please try again later`)
-  } finally {
-    setisLoading(false);
-  }
-}
+  };
 
   // Bei Suchbegriff zurück auf Seite 1 und neue Suche
   useEffect(() => {
     setMoviePage(1);
     fetchMovies(debouncedSearchTerm, 1);
-  }, [debouncedSearchTerm])
+  }, [debouncedSearchTerm]);
 
   // Bei Seitenwechsel weitere Filme laden (auch bei Suche)
   useEffect(() => {
@@ -64,30 +66,32 @@ const fetchMovies = async (query = '', page = 1) => {
       fetchMovies(debouncedSearchTerm, moviePage);
     }
     // eslint-disable-next-line
-  }, [moviePage])
+  }, [moviePage]);
 
   const load_more = () => {
-    setMoviePage(prev => prev + 1);
-  }
+    setMoviePage((prev) => prev + 1);
+  };
 
   return (
     <main>
       <div className="pattern">
         <div className="wrapper">
-          <TypeSelect type="movies"/>
+          {/* <TypeSelect type="movies"/> */}
           <header>
             <img src="./hero.png" alt="Hero Banner" />
-            <h1>Find <span className="text-gradient">Movies</span></h1>
+            <h1>
+              Find <span className="text-gradient">Movies</span>
+            </h1>
             <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           </header>
 
           <section className="all-movies">
-            <h2 className='mt-[40px]'>Movies</h2>
+            <h2 className="mt-[40px]">Movies</h2>
 
             {isLoading ? (
               <Spinner />
             ) : errorMessage ? (
-              <p className='text-red-500'>{errorMessage}</p>
+              <p className="text-red-500">{errorMessage}</p>
             ) : (
               <ul>
                 {movieList.map((movie) => (
@@ -96,11 +100,13 @@ const fetchMovies = async (query = '', page = 1) => {
               </ul>
             )}
           </section>
-          <div className='load-button' onClick={load_more}>Mehr anzeigen</div>
+          <div className="load-button" onClick={load_more}>
+            Mehr anzeigen
+          </div>
         </div>
       </div>
     </main>
-  )
-}
+  );
+};
 
-export default MovieList
+export default MovieList;
