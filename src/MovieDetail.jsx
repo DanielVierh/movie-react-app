@@ -25,6 +25,8 @@ function MovieDetail() {
   const [error, setError] = useState("");
   const [ageRating, setAgeRating] = useState(null);
   const [ageRatingLoading, setAgeRatingLoading] = useState(true);
+  const [watchProviders, setWatchProviders] = useState(null);
+  const [watchProvidersLoading, setWatchProvidersLoading] = useState(true);
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [similar, setSimilar] = useState([]);
@@ -107,6 +109,45 @@ function MovieDetail() {
     };
 
     fetchAgeRating();
+  }, [id]);
+
+  useEffect(() => {
+    const fetchWatchProviders = async () => {
+      setWatchProvidersLoading(true);
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/movie/${id}/watch/providers`,
+          API_OPTIONS,
+        );
+        if (!response.ok)
+          throw new Error("Streaming-Infos konnten nicht geladen werden");
+        const data = await response.json();
+
+        const results =
+          data?.results && typeof data.results === "object" ? data.results : {};
+
+        const pickCountry = (code) => {
+          const entry = results?.[code];
+          return entry && typeof entry === "object" ? entry : null;
+        };
+
+        const chosen =
+          pickCountry("DE") ||
+          pickCountry("AT") ||
+          pickCountry("CH") ||
+          pickCountry("US") ||
+          pickCountry(Object.keys(results)[0]);
+
+        setWatchProviders(chosen);
+      } catch (err) {
+        console.log(err);
+        setWatchProviders(null);
+      } finally {
+        setWatchProvidersLoading(false);
+      }
+    };
+
+    fetchWatchProviders();
   }, [id]);
 
   useEffect(() => {
@@ -268,6 +309,79 @@ function MovieDetail() {
           : movie.vote_count.toLocaleString("de-DE")}{" "}
         Bewertungen)
       </p>
+
+      <div className="mt-6">
+        <h3 className="text-xl font-semibold mb-2">Streaming</h3>
+        {watchProvidersLoading ? (
+          <p>Lade Streaming-Infos...</p>
+        ) : !watchProviders ? (
+          <p className="text-gray-100">Keine Streaming-Infos verfügbar.</p>
+        ) : (
+          <>
+            {watchProviders?.link && (
+              <a
+                href={watchProviders.link}
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-400 underline"
+              >
+                Öffnen (JustWatch)
+              </a>
+            )}
+
+            {(() => {
+              const groups = [
+                { key: "flatrate", label: "Streaming" },
+                { key: "free", label: "Gratis" },
+                { key: "ads", label: "Mit Werbung" },
+                { key: "rent", label: "Leihen" },
+                { key: "buy", label: "Kaufen" },
+              ];
+
+              const renderProviders = (providers) => (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {providers.slice(0, 10).map((p) => (
+                    <div
+                      key={`${p.provider_id}-${p.provider_name}`}
+                      className="flex items-center gap-2 bg-dark-100/60 px-2 py-1 rounded"
+                      title={p.provider_name}
+                    >
+                      {p.logo_path && (
+                        <img
+                          src={`https://image.tmdb.org/t/p/w45${p.logo_path}`}
+                          alt={p.provider_name}
+                          className="w-6 h-6 rounded"
+                        />
+                      )}
+                      <span className="text-sm text-gray-100">
+                        {p.provider_name}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              );
+
+              return (
+                <div className="mt-2 space-y-3">
+                  {groups.map((g) => {
+                    const list = Array.isArray(watchProviders?.[g.key])
+                      ? watchProviders[g.key]
+                      : [];
+                    if (list.length === 0) return null;
+                    return (
+                      <div key={g.key}>
+                        <div className="font-semibold">{g.label}</div>
+                        {renderProviders(list)}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+          </>
+        )}
+      </div>
+
       <p>
         Budget:{" "}
         {movie.budget === 0 ? "-" : movie.budget.toLocaleString("de-DE")} $
