@@ -3,6 +3,7 @@ import MovieList from "./MovieList";
 import MovieDetail from "./MovieDetail";
 import SeriesList from "./SeriesList";
 import SeriesDetail from "./SeriesDetail";
+import Watchlist from "./Watchlist";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
           <Route path="/movie/:id" element={<MovieDetail />} />
           <Route path="/series" element={<SeriesList />} />
           <Route path="/series/:id" element={<SeriesDetail />} />
+          <Route path="/watchlist" element={<Watchlist />} />
         </Routes>
       </Router>
     </>

@@ -4,7 +4,8 @@ import Review from "./components/Review";
 import StickyHeader from "./components/StickyHeader";
 import Recommondations from "./components/Recommondations";
 import SwiperSlides from "./components/SwiperSlides";
-import CreditsCard from "./components/CreditsCards"
+import CreditsCard from "./components/CreditsCards";
+import useWatchlist from "./hooks/useWatchlist";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 const SCRT = import.meta.env.VITE_TMDB;
@@ -31,6 +32,8 @@ function MovieDetail() {
   const [credits, setCredits] = useState([]);
   const [creditsLoading, setCreditsLoading] = useState(true);
 
+  const { addMovie, removeMovie, isMovieInWatchlist } = useWatchlist();
+
   useEffect(() => {
     const fetchMovie = async () => {
       setIsLoading(true);
@@ -38,7 +41,7 @@ function MovieDetail() {
       try {
         const response = await fetch(
           `${API_BASE_URL}/movie/${id}`,
-          API_OPTIONS
+          API_OPTIONS,
         );
         if (!response.ok) throw new Error("Film konnte nicht geladen werden");
         const data = await response.json();
@@ -60,7 +63,7 @@ function MovieDetail() {
       try {
         const response = await fetch(
           `${API_BASE_URL}/movie/${id}/reviews?language=en-US&page=1`,
-          API_OPTIONS
+          API_OPTIONS,
         );
         if (!response.ok)
           throw new Error("Reviews konnten nicht geladen werden");
@@ -84,13 +87,13 @@ function MovieDetail() {
       try {
         const response = await fetch(
           `${API_BASE_URL}/movie/${id}/credits`,
-          API_OPTIONS
+          API_OPTIONS,
         );
         if (!response.ok)
           throw new Error("Credits konnten nicht geladen werden");
         const data = await response.json();
-        console.log('Raw_Data', data.cast);
-        
+        console.log("Raw_Data", data.cast);
+
         setCredits(data.cast || []);
       } catch (err) {
         console.log(err);
@@ -108,7 +111,7 @@ function MovieDetail() {
       try {
         const response = await fetch(
           `${API_BASE_URL}/movie/${id}/recommendations?language=en-US&page=1`,
-          API_OPTIONS
+          API_OPTIONS,
         );
         if (!response.ok)
           throw new Error("Ähnliche Filme konnten nicht geladen werden");
@@ -130,7 +133,7 @@ function MovieDetail() {
       try {
         const response = await fetch(
           `${API_BASE_URL}/movie/${id}/images`,
-          API_OPTIONS
+          API_OPTIONS,
         );
         if (!response.ok)
           throw new Error("Bilder konnten nicht geladen werden");
@@ -156,9 +159,12 @@ function MovieDetail() {
     );
   if (!movie) return null;
 
+  const movieId = Number(id);
+  const inWatchlist = Number.isFinite(movieId) && isMovieInWatchlist(movieId);
+
   return (
     <div className="p-8 max-w-xl mx-auto text-white">
-      <StickyHeader title={movie.title} link_to_main={'/'} />
+      <StickyHeader title={movie.title} link_to_main={"/"} />
       <img
         src={
           movie.poster_path
@@ -171,6 +177,19 @@ function MovieDetail() {
       <h2 className="text-2xl font-bold mb-2">
         {movie.title} ({movie.release_date?.split("-")[0]})
       </h2>
+
+      <button
+        type="button"
+        className="type-cta"
+        onClick={() => {
+          if (!Number.isFinite(movieId)) return;
+          if (inWatchlist) removeMovie(movieId);
+          else addMovie(movie);
+        }}
+      >
+        {inWatchlist ? "Aus Watchlist entfernen" : "Zur Watchlist hinzufügen"}
+      </button>
+
       <p className="mb-4">{movie.overview}</p>
       <p>Sprache: {movie.original_language}</p>
       <p>Laufzeit: {movie.runtime === 0 ? "-" : movie.runtime} Minuten</p>
@@ -218,7 +237,7 @@ function MovieDetail() {
         {creditsLoading ? (
           <p>Lade Schauspieler...</p>
         ) : (
-          <CreditsCard data={credits}/>
+          <CreditsCard data={credits} />
         )}
       </div>
 

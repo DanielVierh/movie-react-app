@@ -5,6 +5,7 @@ import StickyHeader from "./components/StickyHeader";
 import Recommondations from "./components/Recommondations";
 import SwiperSlides from "./components/SwiperSlides";
 import CreditsCard from "./components/CreditsCards";
+import useWatchlist from "./hooks/useWatchlist";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 const SCRT = import.meta.env.VITE_TMDB;
@@ -30,6 +31,8 @@ function SeriesDetail() {
   const [recommondationsLoading, setRecommondationsLoading] = useState(true);
   const [credits, setCredits] = useState([]);
   const [creditsLoading, setCreditsLoading] = useState(true);
+
+  const { addSeries, removeSeries, isSeriesInWatchlist } = useWatchlist();
 
   useEffect(() => {
     const fetchSeries = async () => {
@@ -59,7 +62,7 @@ function SeriesDetail() {
       try {
         const response = await fetch(
           `${API_BASE_URL}/tv/${id}/credits`,
-          API_OPTIONS
+          API_OPTIONS,
         );
         if (!response.ok)
           throw new Error("Credits konnten nicht geladen werden");
@@ -83,7 +86,7 @@ function SeriesDetail() {
       try {
         const response = await fetch(
           `${API_BASE_URL}/tv/${id}/reviews?language=en-US&page=1`,
-          API_OPTIONS
+          API_OPTIONS,
         );
         if (!response.ok)
           throw new Error("Reviews konnten nicht geladen werden");
@@ -106,7 +109,7 @@ function SeriesDetail() {
       try {
         const response = await fetch(
           `${API_BASE_URL}/tv/${id}/images`,
-          API_OPTIONS
+          API_OPTIONS,
         );
         if (!response.ok)
           throw new Error("Bilder konnten nicht geladen werden");
@@ -128,7 +131,7 @@ function SeriesDetail() {
       try {
         const response = await fetch(
           `${API_BASE_URL}/tv/${id}/recommendations?language=en-US&page=1`,
-          API_OPTIONS
+          API_OPTIONS,
         );
         if (!response.ok)
           throw new Error("Ähnliche Filme konnten nicht geladen werden");
@@ -154,9 +157,13 @@ function SeriesDetail() {
     );
   if (!series) return null;
 
+  const seriesId = Number(id);
+  const inWatchlist =
+    Number.isFinite(seriesId) && isSeriesInWatchlist(seriesId);
+
   return (
     <div className="p-8 max-w-xl mx-auto text-white">
-      <StickyHeader title={series.name} link_to_main={'/Series'} />
+      <StickyHeader title={series.name} link_to_main={"/Series"} />
       <img
         src={
           series.poster_path
@@ -169,6 +176,19 @@ function SeriesDetail() {
       <h2 className="text-2xl font-bold mb-2">
         {series.name} ({series.first_air_date?.split("-")[0]})
       </h2>
+
+      <button
+        type="button"
+        className="type-cta"
+        onClick={() => {
+          if (!Number.isFinite(seriesId)) return;
+          if (inWatchlist) removeSeries(seriesId);
+          else addSeries(series);
+        }}
+      >
+        {inWatchlist ? "Aus Watchlist entfernen" : "Zur Watchlist hinzufügen"}
+      </button>
+
       <p className="mb-4">{series.overview}</p>
       <p>Sprache: {series.original_language}</p>
       <p>Laufzeit: {series.runtime === 0 ? "-" : series.runtime} Minuten</p>
