@@ -23,6 +23,8 @@ function SeriesDetail() {
   const [series, setSeries] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [ageRating, setAgeRating] = useState(null);
+  const [ageRatingLoading, setAgeRatingLoading] = useState(true);
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [images, setImages] = useState([]);
@@ -53,6 +55,47 @@ function SeriesDetail() {
       }
     };
     fetchSeries();
+  }, [id]);
+
+  useEffect(() => {
+    const fetchAgeRating = async () => {
+      setAgeRatingLoading(true);
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/tv/${id}/content_ratings`,
+          API_OPTIONS,
+        );
+        if (!response.ok)
+          throw new Error("Altersfreigabe konnte nicht geladen werden");
+        const data = await response.json();
+
+        const results = Array.isArray(data?.results) ? data.results : [];
+
+        const pick = (country) => {
+          const entry = results.find((r) => r?.iso_3166_1 === country);
+          const rating =
+            typeof entry?.rating === "string" ? entry.rating.trim() : "";
+          return rating || null;
+        };
+
+        const de = pick("DE");
+        const us = pick("US");
+
+        const chosen = de
+          ? { country: "DE", value: de }
+          : us
+            ? { country: "US", value: us }
+            : null;
+        setAgeRating(chosen);
+      } catch (err) {
+        console.log(err);
+        setAgeRating(null);
+      } finally {
+        setAgeRatingLoading(false);
+      }
+    };
+
+    fetchAgeRating();
   }, [id]);
 
   //* Credits
@@ -191,6 +234,15 @@ function SeriesDetail() {
 
       <p className="mb-4">{series.overview}</p>
       <p>Sprache: {series.original_language}</p>
+      <p>
+        FSK:{" "}
+        {ageRatingLoading
+          ? "Lade..."
+          : ageRating?.country === "DE"
+            ? ageRating.value
+            : "-"}
+        {ageRating?.country === "US" ? ` (US: ${ageRating.value})` : ""}
+      </p>
       <p>Laufzeit: {series.runtime === 0 ? "-" : series.runtime} Minuten</p>
       <p>
         Release Datum:{" "}

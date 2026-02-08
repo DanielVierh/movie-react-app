@@ -23,6 +23,8 @@ function MovieDetail() {
   const [movie, setMovie] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [ageRating, setAgeRating] = useState(null);
+  const [ageRatingLoading, setAgeRatingLoading] = useState(true);
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [similar, setSimilar] = useState([]);
@@ -55,6 +57,56 @@ function MovieDetail() {
       }
     };
     fetchMovie();
+  }, [id]);
+
+  useEffect(() => {
+    const fetchAgeRating = async () => {
+      setAgeRatingLoading(true);
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/movie/${id}/release_dates`,
+          API_OPTIONS,
+        );
+        if (!response.ok)
+          throw new Error("Altersfreigabe konnte nicht geladen werden");
+        const data = await response.json();
+
+        const results = Array.isArray(data?.results) ? data.results : [];
+
+        const pickCertification = (country) => {
+          const entry = results.find((r) => r?.iso_3166_1 === country);
+          const dates = Array.isArray(entry?.release_dates)
+            ? entry.release_dates
+            : [];
+          const cert = dates
+            .map((d) =>
+              typeof d?.certification === "string"
+                ? d.certification.trim()
+                : "",
+            )
+            .find((c) => c);
+          return cert || null;
+        };
+
+        const de = pickCertification("DE");
+        const us = pickCertification("US");
+
+        const chosen =
+          de && de !== "0"
+            ? { country: "DE", value: de }
+            : us && us !== "0"
+              ? { country: "US", value: us }
+              : null;
+        setAgeRating(chosen);
+      } catch (err) {
+        console.log(err);
+        setAgeRating(null);
+      } finally {
+        setAgeRatingLoading(false);
+      }
+    };
+
+    fetchAgeRating();
   }, [id]);
 
   useEffect(() => {
@@ -192,6 +244,15 @@ function MovieDetail() {
 
       <p className="mb-4">{movie.overview}</p>
       <p>Sprache: {movie.original_language}</p>
+      <p>
+        FSK:{" "}
+        {ageRatingLoading
+          ? "Lade..."
+          : ageRating?.country === "DE"
+            ? ageRating.value
+            : "-"}
+        {ageRating?.country === "US" ? ` (US: ${ageRating.value})` : ""}
+      </p>
       <p>Laufzeit: {movie.runtime === 0 ? "-" : movie.runtime} Minuten</p>
       <p>
         Release Datum:{" "}
