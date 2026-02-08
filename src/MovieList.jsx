@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Search from "./components/Search.jsx";
 import Spinner from "./components/Spinner.jsx";
 import MovieCard from "./components/MovieCard.jsx";
-import TypeSelect from "./components/TypeSelect.jsx";
 import { useDebounce } from "react-use";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
@@ -23,18 +22,30 @@ const MovieList = () => {
   const [isLoading, setisLoading] = useState(false);
   const [debouncedSearchTerm, setdebouncedSearchTerm] = useState("");
   const [moviePage, setMoviePage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const pendingScrollRestoreY = useRef(null);
+
+  const MOVIE_BROWSE_MODES = [
+    { key: "now_playing", label: "Neu im Kino" },
+    { key: "popular", label: "Beliebt" },
+    { key: "top_rated", label: "Top bewertet" },
+    { key: "upcoming", label: "Neuerscheinungen" },
+    { key: "top_100", label: "Top 100" },
+  ];
+  const [browseMode, setBrowseMode] = useState("now_playing");
 
   useDebounce(() => setdebouncedSearchTerm(searchTerm), 1000, [searchTerm]);
 
-  const fetchMovies = async (query = "", page = 1) => {
+  const fetchMovies = async (query = "", page = 1, mode = "now_playing") => {
     setisLoading(true);
     setErrorMessage("");
     try {
+      const effectiveMode = mode === "top_100" ? "top_rated" : mode;
       const endpoint = query
         ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(
-            query
+            query,
           )}&page=${page}`
-        : `${API_BASE_URL}/movie/now_playing?page=${page}&sort_by=popularity.desc`;
+        : `${API_BASE_URL}/movie/${effectiveMode}?page=${page}`;
       const response = await fetch(endpoint, API_OPTIONS);
       if (!response.ok) {
         throw new Error("Filme konnten nicht geladen werden");
@@ -43,12 +54,24 @@ const MovieList = () => {
       if (data.Response === "false") {
         setErrorMessage(data.Error || "Failed to fetch movies");
         setMovieList([]);
+        setHasMore(false);
         return;
       }
-      setMovieList(data.results || []);
+
+      if (page > 1) {
+        setMovieList((prev) => [...prev, ...(data.results || [])]);
+      } else {
+        setMovieList(data.results || []);
+      }
+
+      const totalPages =
+        typeof data.total_pages === "number" ? data.total_pages : 1;
+      const pageLimit = mode === "top_100" ? 5 : totalPages;
+      setHasMore(page < Math.min(totalPages, pageLimit));
     } catch (error) {
       console.log(error);
       setErrorMessage(`Error fetching Movies, please try again later`);
+      setHasMore(false);
     } finally {
       setisLoading(false);
     }
@@ -57,20 +80,31 @@ const MovieList = () => {
   // Bei Suchbegriff zurück auf Seite 1 und neue Suche
   useEffect(() => {
     setMoviePage(1);
-    fetchMovies(debouncedSearchTerm, 1);
-  }, [debouncedSearchTerm]);
+    fetchMovies(debouncedSearchTerm, 1, browseMode);
+  }, [debouncedSearchTerm, browseMode]);
 
   // Bei Seitenwechsel weitere Filme laden (auch bei Suche)
   useEffect(() => {
     if (moviePage > 1) {
-      fetchMovies(debouncedSearchTerm, moviePage);
+      fetchMovies(debouncedSearchTerm, moviePage, browseMode);
     }
     // eslint-disable-next-line
   }, [moviePage]);
 
   const load_more = () => {
+    pendingScrollRestoreY.current = window.scrollY;
     setMoviePage((prev) => prev + 1);
   };
+
+  useEffect(() => {
+    if (pendingScrollRestoreY.current == null) return;
+    const y = pendingScrollRestoreY.current;
+    pendingScrollRestoreY.current = null;
+
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: y });
+    });
+  }, [movieList.length]);
 
   return (
     <main>
@@ -83,10 +117,33 @@ const MovieList = () => {
               Find <span className="text-gradient">Movies</span>
             </h1>
             <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+
+            <div className="flex flex-wrap justify-center gap-2 mt-6">
+              {MOVIE_BROWSE_MODES.map((m) => (
+                <button
+                  key={m.key}
+                  type="button"
+                  className={`type-cta ${browseMode === m.key ? "active" : ""}`}
+                  onClick={() => {
+                    setBrowseMode(m.key);
+                  }}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
           </header>
 
           <section className="all-movies">
-            <h2 className="mt-[40px]">Movies</h2>
+            <h2 className="mt-[40px]">
+              Movies
+              {debouncedSearchTerm
+                ? ` – Suche: ${debouncedSearchTerm}`
+                : ` – ${
+                    MOVIE_BROWSE_MODES.find((m) => m.key === browseMode)
+                      ?.label ?? ""
+                  }`}
+            </h2>
 
             {isLoading ? (
               <Spinner />
@@ -100,9 +157,12 @@ const MovieList = () => {
               </ul>
             )}
           </section>
-          <div className="load-button" onClick={load_more}>
-            Mehr anzeigen
-          </div>
+          {hasMore && !isLoading && (
+            <button type="button" className="load-button" onClick={load_more}>
+              Mehr anzeigen
+            </button>
+          )}
+          {isLoading && moviePage > 1 && <Spinner />}
         </div>
       </div>
     </main>
