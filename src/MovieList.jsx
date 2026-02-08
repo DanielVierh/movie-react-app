@@ -6,6 +6,8 @@ import { useDebounce } from "react-use";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 const SCRT = import.meta.env.VITE_TMDB;
+const TMDB_LANGUAGE = "de-DE";
+const TMDB_REGION = "DE";
 
 const API_OPTIONS = {
   method: "GET",
@@ -44,8 +46,8 @@ const MovieList = () => {
       const endpoint = query
         ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(
             query,
-          )}&page=${page}`
-        : `${API_BASE_URL}/movie/${effectiveMode}?page=${page}`;
+          )}&page=${page}&language=${TMDB_LANGUAGE}`
+        : `${API_BASE_URL}/movie/${effectiveMode}?page=${page}&language=${TMDB_LANGUAGE}&region=${TMDB_REGION}`;
       const response = await fetch(endpoint, API_OPTIONS);
       if (!response.ok) {
         throw new Error("Filme konnten nicht geladen werden");

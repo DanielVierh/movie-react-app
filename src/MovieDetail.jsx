@@ -9,6 +9,7 @@ import useWatchlist from "./hooks/useWatchlist";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 const SCRT = import.meta.env.VITE_TMDB;
+const TMDB_LANGUAGE = "de-DE";
 
 const API_OPTIONS = {
   method: "GET",
@@ -44,7 +45,7 @@ function MovieDetail() {
       setError("");
       try {
         const response = await fetch(
-          `${API_BASE_URL}/movie/${id}`,
+          `${API_BASE_URL}/movie/${id}?language=${TMDB_LANGUAGE}`,
           API_OPTIONS,
         );
         if (!response.ok) throw new Error("Film konnte nicht geladen werden");
@@ -155,7 +156,7 @@ function MovieDetail() {
       setReviewsLoading(true);
       try {
         const response = await fetch(
-          `${API_BASE_URL}/movie/${id}/reviews?language=en-US&page=1`,
+          `${API_BASE_URL}/movie/${id}/reviews?language=${TMDB_LANGUAGE}&page=1`,
           API_OPTIONS,
         );
         if (!response.ok)
@@ -203,7 +204,7 @@ function MovieDetail() {
       setSimilarLoading(true);
       try {
         const response = await fetch(
-          `${API_BASE_URL}/movie/${id}/recommendations?language=en-US&page=1`,
+          `${API_BASE_URL}/movie/${id}/recommendations?language=${TMDB_LANGUAGE}&page=1`,
           API_OPTIONS,
         );
         if (!response.ok)
@@ -225,7 +226,7 @@ function MovieDetail() {
       setImagesLoading(true);
       try {
         const response = await fetch(
-          `${API_BASE_URL}/movie/${id}/images`,
+          `${API_BASE_URL}/movie/${id}/images?language=${TMDB_LANGUAGE}`,
           API_OPTIONS,
         );
         if (!response.ok)

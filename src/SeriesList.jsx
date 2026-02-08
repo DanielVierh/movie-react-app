@@ -6,6 +6,8 @@ import { useDebounce } from "react-use";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 const SCRT = import.meta.env.VITE_TMDB;
+const TMDB_LANGUAGE = "de-DE";
+const TMDB_REGION = "DE";
 
 const API_OPTIONS = {
   method: "GET",
@@ -50,15 +52,15 @@ const SeriesList = () => {
         if (query) {
           return `${API_BASE_URL}/search/tv?query=${encodeURIComponent(
             query,
-          )}&page=${pageNum}`;
+          )}&page=${pageNum}&language=${TMDB_LANGUAGE}`;
         }
 
         if (mode === "trending_week") {
-          return `${API_BASE_URL}/trending/tv/week?language=en-US&page=${pageNum}`;
+          return `${API_BASE_URL}/trending/tv/week?language=${TMDB_LANGUAGE}&region=${TMDB_REGION}&page=${pageNum}`;
         }
 
         const effectiveMode = mode === "top_100" ? "top_rated" : mode;
-        return `${API_BASE_URL}/tv/${effectiveMode}?language=en-US&page=${pageNum}`;
+        return `${API_BASE_URL}/tv/${effectiveMode}?language=${TMDB_LANGUAGE}&region=${TMDB_REGION}&page=${pageNum}`;
       })();
       const response = await fetch(endpoint, API_OPTIONS);
       if (!response.ok) {

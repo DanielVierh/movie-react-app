@@ -9,6 +9,7 @@ import useWatchlist from "./hooks/useWatchlist";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 const SCRT = import.meta.env.VITE_TMDB;
+const TMDB_LANGUAGE = "de-DE";
 
 const API_OPTIONS = {
   method: "GET",
@@ -43,7 +44,10 @@ function SeriesDetail() {
       setIsLoading(true);
       setError("");
       try {
-        const response = await fetch(`${API_BASE_URL}/tv/${id}`, API_OPTIONS);
+        const response = await fetch(
+          `${API_BASE_URL}/tv/${id}?language=${TMDB_LANGUAGE}`,
+          API_OPTIONS,
+        );
         if (!response.ok) throw new Error("Serie konnte nicht geladen werden");
         const data = await response.json();
         setSeries(data);
@@ -169,7 +173,7 @@ function SeriesDetail() {
       setReviewsLoading(true);
       try {
         const response = await fetch(
-          `${API_BASE_URL}/tv/${id}/reviews?language=en-US&page=1`,
+          `${API_BASE_URL}/tv/${id}/reviews?language=${TMDB_LANGUAGE}&page=1`,
           API_OPTIONS,
         );
         if (!response.ok)
@@ -192,7 +196,7 @@ function SeriesDetail() {
       setImagesLoading(true);
       try {
         const response = await fetch(
-          `${API_BASE_URL}/tv/${id}/images`,
+          `${API_BASE_URL}/tv/${id}/images?language=${TMDB_LANGUAGE}`,
           API_OPTIONS,
         );
         if (!response.ok)
@@ -214,7 +218,7 @@ function SeriesDetail() {
       setRecommondationsLoading(true);
       try {
         const response = await fetch(
-          `${API_BASE_URL}/tv/${id}/recommendations?language=en-US&page=1`,
+          `${API_BASE_URL}/tv/${id}/recommendations?language=${TMDB_LANGUAGE}&page=1`,
           API_OPTIONS,
         );
         if (!response.ok)
