@@ -156,7 +156,7 @@ function MovieDetail() {
       setReviewsLoading(true);
       try {
         const response = await fetch(
-          `${API_BASE_URL}/movie/${id}/reviews?language=${TMDB_LANGUAGE}&page=1`,
+          `${API_BASE_URL}/movie/${id}/reviews?language=en-US&page=1`,
           API_OPTIONS,
         );
         if (!response.ok)
