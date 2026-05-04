@@ -226,7 +226,7 @@ function MovieDetail() {
       setImagesLoading(true);
       try {
         const response = await fetch(
-          `${API_BASE_URL}/movie/${id}/images?language=${TMDB_LANGUAGE}`,
+          `${API_BASE_URL}/movie/${id}/images`,
           API_OPTIONS,
         );
         if (!response.ok)

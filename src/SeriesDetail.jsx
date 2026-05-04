@@ -196,7 +196,7 @@ function SeriesDetail() {
       setImagesLoading(true);
       try {
         const response = await fetch(
-          `${API_BASE_URL}/tv/${id}/images?language=${TMDB_LANGUAGE}`,
+          `${API_BASE_URL}/tv/${id}/images`,
           API_OPTIONS,
         );
         if (!response.ok)
