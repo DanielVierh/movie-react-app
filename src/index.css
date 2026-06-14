@@ -52,6 +52,10 @@
   }
 }
 
+.link-button.active {
+  background-color: #315dd7;
+}
+
 .swiper-button-next {
   width: 30px !important;
   height: 30px !important;
