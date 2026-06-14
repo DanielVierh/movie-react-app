@@ -52,6 +52,16 @@
   }
 }
 
+.swiper-button-next {
+  width: 30px !important;
+  height: 30px !important;
+}
+
+.swiper-button-prev {
+  width: 30px !important;
+  height: 30px !important;
+}
+
 @layer components {
   .pattern {
     @apply bg-hero-pattern w-full h-screen bg-center bg-cover absolute z-0;
@@ -75,6 +85,8 @@
 
     & input {
       @apply w-full bg-transparent py-2 sm:pr-10 pl-10 text-base text-gray-200 placeholder-light-200 outline-hidden;
+      border: 1px solid rgba(255, 255, 255, 0.552);
+      border-radius: 8px;
     }
   }
 
