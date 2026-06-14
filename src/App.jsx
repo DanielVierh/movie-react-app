@@ -10,6 +10,7 @@ import SeriesList from "./SeriesList";
 import SeriesDetail from "./SeriesDetail";
 import Watchlist from "./Watchlist";
 import Navigation from "./components/Navigation";
+import ScrollUpBtn from "./components/ScrollUpBtn";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/series/:id" element={<SeriesDetail />} />
           <Route path="/watchlist" element={<Watchlist />} />
         </Routes>
+        <ScrollUpBtn />
       </Router>
     </>
   );
