@@ -274,7 +274,7 @@ function MovieDetail() {
 
       <button
         type="button"
-        className="type-cta"
+        className="type-cta watchlist-btn"
         onClick={() => {
           if (!Number.isFinite(movieId)) return;
           if (inWatchlist) removeMovie(movieId);

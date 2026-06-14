@@ -170,12 +170,16 @@
 }
 
 .type-cta {
-  @apply bg-blue-900 hover:bg-blue-950 text-white font-bold py-2 px-4 rounded m-7 cursor-pointer;
+  @apply bg-blue-900 hover:bg-blue-950 text-white font-bold py-2 px-4 rounded m-1 cursor-pointer;
 
   &.active {
     color: #8f8bff;
     box-shadow: 0 0 15px white;
   }
+}
+
+.watchlist-btn {
+  @apply my-8;
 }
 
 .sticky-header {

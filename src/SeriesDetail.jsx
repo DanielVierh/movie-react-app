@@ -267,7 +267,7 @@ function SeriesDetail() {
 
       <button
         type="button"
-        className="type-cta"
+        className="type-cta watchlist-btn"
         onClick={() => {
           if (!Number.isFinite(seriesId)) return;
           if (inWatchlist) removeSeries(seriesId);
